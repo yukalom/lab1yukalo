@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Реєстр ПЗ для лабораторій</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3f9ddb;
+            --error: #e74c3c;
+            --success: #27ae60;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after { box-sizing: inherit; }
+
+        h1 { text-align: center; color: var(--primary); }
+
+        .container {
+            display: flex; 
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+
+        .list-section {
+            flex: 2;
+            min-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .form-group { margin-bottom: 15px; position: relative; }
+
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+
+        input.invalid, select.invalid { border: 2px solid var(--error); }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-submit:hover { background: #2980b9; }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th { background-color: #f8f9fa; color: var(--primary); }
+
+        .actions { display: flex; gap: 5px; }
+
+        .edit-btn { background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+        .delete-btn { background: var(--error); color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Реєстр програмного забезпечення для лабораторій</h1>
+
+    <div class="container">
+        <section class="form-section">
+            <h2 id="formTitle">Додати ПЗ</h2>
+            <form id="softwareForm" novalidate>
+                <div class="form-group">
+                    <label for="name">Назва продукту:</label>
+                    <input type="text" id="name" name="name" required placeholder="Напр: MatLab">
+                    <div class="error-msg" id="nameError">Назва обов'язкова</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="licenseType">Тип ліцензії:</label>
+                    <select id="licenseType" name="licenseType" required>
+                        <option value="">-- Оберіть --</option>
+                        <option value="Free">Free (Безкоштовна)</option>
+                        <option value="Commercial">Commercial (Платна)</option>
+                        <option value="Academic">Academic (Академічна)</option>
+                    </select>
+                    <div class="error-msg" id="licenseError">Оберіть тип ліцензії</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="version">Версія:</label>
+                    <input type="number" id="version" name="version" step="0.1" required>
+                    <div class="error-msg" id="versionError">Вкажіть числову версію</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="installDate">Дата встановлення:</label>
+                    <input type="date" id="installDate" name="installDate" required>
+                    <div class="error-msg" id="dateError">Оберіть коректну дату</div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-submit">Зберегти запис</button>
+            </form>
+        </section>
+
+        <section class="list-section">
+            <div class="controls">
+                <input type="text" id="searchInput" placeholder="Пошук за назвою...">
+                <select id="filterLicense">
+                    <option value="all">Усі ліцензії</option>
+                    <option value="Free">Тільки Free</option>
+                    <option value="Commercial">Тільки Commercial</option>
+                    <option value="Academic">Тільки Academic</option>
+                </select>
+            </div>
+
+            <table id="softwareTable">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Ліцензія</th>
+                        <th>Версія</th>
+                        <th>Дата</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        let softwareList = JSON.parse(localStorage.getItem('lab_software_db')) || [];
+        let editId = null;
+
+        const form = document.getElementById('softwareForm');
+        const tableBody = document.getElementById('tableBody');
+        const searchInput = document.getElementById('searchInput');
+        const filterLicense = document.getElementById('filterLicense');
+        const submitBtn = document.getElementById('submitBtn');
+        const formTitle = document.getElementById('formTitle');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (validateForm()) {
+                const data = {
+                    name: document.getElementById('name').value,
+                    licenseType: document.getElementById('licenseType').value,
+                    version: document.getElementById('version').value,
+                    installDate: document.getElementById('installDate').value
+                };
+
+                if (editId) {
+                    updateItem(editId, data);
+                } else {
+                    addItem(data);
+                }
+
+                resetForm();
+                render();
+            }
+        });
+
+
+        tableBody.addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (!row) return;
+            const id = row.dataset.id;
+
+            if (e.target.classList.contains('delete-btn')) {
+                deleteItem(id);
+            } else if (e.target.classList.contains('edit-btn')) {
+                prepareEdit(id);
+            }
+        });
+
+        searchInput.addEventListener('input', render);
+        filterLicense.addEventListener('change', render);
+
+
+
+        function addItem(data) {
+            const newItem = { ...data, id: Date.now().toString() };
+            softwareList.push(newItem);
+            save();
+        }
+
+        function updateItem(id, data) {
+            softwareList = softwareList.map(item => item.id === id ? { ...data, id } : item);
+            save();
+        }
+
+        function deleteItem(id) {
+            if (confirm('Видалити цей запис?')) {
+                softwareList = softwareList.filter(item => item.id !== id);
+                save();
+                render();
+            }
+        }
+
+        function prepareEdit(id) {
+            const item = softwareList.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('name').value = item.name;
+            document.getElementById('licenseType').value = item.licenseType;
+            document.getElementById('version').value = item.version;
+            document.getElementById('installDate').value = item.installDate;
+
+            editId = id;
+            submitBtn.textContent = 'Оновити дані';
+            formTitle.textContent = 'Редагування запису';
+            document.getElementById('name').focus();
+        }
+
+        function validateForm() {
+            let isValid = true;
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                const errorDiv = document.getElementById(`${input.id}Error`);
+                if (!input.value.trim()) {
+                    input.classList.add('invalid');
+                    if (errorDiv) errorDiv.style.display = 'block';
+                    isValid = false;
+                } else {
+                    input.classList.remove('invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            return isValid;
+        }
+
+        function resetForm() {
+            form.reset();
+            editId = null;
+            submitBtn.textContent = 'Зберегти запис';
+            formTitle.textContent = 'Додати ПЗ';
+        }
+
+        function save() {
+            localStorage.setItem('lab_software_db', JSON.stringify(softwareList));
+        }
+
+        function render() {
+            const search = searchInput.value.toLowerCase();
+            const filter = filterLicense.value;
+
+            tableBody.innerHTML = '';
+
+            const filtered = softwareList.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search);
+                const matchesFilter = filter === 'all' || item.licenseType === filter;
+                return matchesSearch && matchesFilter;
+            });
+
+            // Сортування за назвою (A-Z)
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = item.id;
+                tr.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.licenseType}</td>
+                    <td>${item.version}</td>
+                    <td>${item.installDate}</td>
+                    <td class="actions">
+                        <button class="edit-btn">Редагувати</button>
+                        <button class="delete-btn">Видалити</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        render();
+    </script>
+</body>
+</html>
