@@ -1,0 +1,101 @@
+:root {
+    --primary: #2c3e50;
+    --accent: #3f9ddb;
+    --error: #e74c3c;
+    --success: #27ae60;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 20px;
+    background-color: #f4f7f6;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after { box-sizing: inherit; }
+
+h1 { text-align: center; color: var(--primary); }
+
+.container {
+    display: flex; 
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.form-section {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.list-section {
+    flex: 2;
+    min-width: 500px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.form-group { margin-bottom: 15px; position: relative; }
+
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+input.invalid, select.invalid { border: 2px solid var(--error); }
+
+.error-msg {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-submit:hover { background: #2980b9; }
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+th { background-color: #f8f9fa; color: var(--primary); }
+
+.actions { display: flex; gap: 5px; }
+
+.edit-btn { background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+.delete-btn { background: var(--error); color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
