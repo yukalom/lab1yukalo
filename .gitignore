@@ -1,0 +1,5 @@
+itst/
+backend/
+.idea/
+lr2/lr2-api-ts/src/db
+lr2/lr2-api-ts/data
