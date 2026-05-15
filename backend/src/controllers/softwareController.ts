@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/AppError.js";
-// import * as softwareRepository from "../repositories/SoftwareRepository.js";
-import * as softwareRepository from "../repositories/SoftwareRepositoryBE.js";
+import * as softwareRepository from "../repositories/SoftwareRepository.js";
+// import * as softwareRepository from "../repositories/SoftwareRepositoryBE.js";
 import type { ListItemsQuery } from "../types/Software.js";
 import { error } from "node:console";
 import * as softwareService from "../service/softwareService.js";

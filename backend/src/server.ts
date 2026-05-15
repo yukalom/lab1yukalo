@@ -10,17 +10,17 @@ let isShuttingDown = false;
 
 async function bootstrap(): Promise<void> {
   console.log("Starting application...");
-  // console.log("Connecting DB...");
+  console.log("Connecting DB...");
 
-  // await initDb();
+  await initDb();
 
-  // console.log("Applying schema...");
-  // await initSchema();
+  console.log("Applying schema...");
+  await initSchema();
 
-  // if (config.seedOnStart) {
-  //   console.log("Running seed...");
-  //   await seedIfNeeded();
-  // }
+  if (config.seedOnStart) {
+    console.log("Running seed...");
+    await seedIfNeeded();
+  }
 
   server = app.listen(config.port, () => {
     console.log(`HTTP server is listening on port ${config.port}`);

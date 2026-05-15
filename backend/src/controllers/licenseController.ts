@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/AppError.js";
-// import * as licenseRepository from "../repositories/licenseRepository.js";
-import * as licenseRepository from "../repositories/licenseRepositoryBE.js";
+import * as licenseRepository from "../repositories/licenseRepository.js";
+// import * as licenseRepository from "../repositories/licenseRepositoryBE.js";
 import * as licenseService from "../service/licenseService.js";
 
 export async function getAll(
