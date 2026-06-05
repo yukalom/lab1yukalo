@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-tabs">
+        <button class="tab-btn active" data-view="products" onclick="switchView('products')">Software Products</button>
+        <button class="tab-btn" data-view="licenses" onclick="switchView('licenses')">Licenses</button>
+        <button class="tab-btn" data-view="users" onclick="switchView('users')">Users</button>
+        <button class="tab-btn" data-view="requests" onclick="switchView('requests')">Requests</button>
+    </div>
+
+    <div class="card" id="view-container"></div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+
+</body>
+</html>
