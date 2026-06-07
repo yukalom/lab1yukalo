@@ -29,7 +29,7 @@ export function renderRequestsList(): string {
                         <td>${(String(item.id))}</td>
                         <td>${(String(item.software_id))}</td>
                         <td>${(String(item.user_id))}</td>
-                        <td>${(item.request_date)}</td>
+                        <td>${escapeHtml(item.request_date)}</td>
                         <td style="text-align: center;">
                             <div class="action-buttons-cell" style="display: flex; gap: 5px; justify-content: center;">
                                 <button class="btn btn-sm btn-secondary btn-edit-request" data-request-id="${item.id}">Edit</button>

@@ -16,7 +16,7 @@ export function renderRequestDetails(): string {
         return `<div class="status-msg error-msg">The tracked entry could not be synchronized or was removed.</div>`;
     }
     if (details.status === "error") {
-        return `<div class="status-msg error-msg">Error: ${(details.message)}</div>`;
+        return `<div class="status-msg error-msg">Error: ${escapeHtml(details.message)}</div>`;
     }
 
     const item = details.item;
@@ -31,7 +31,7 @@ export function renderRequestDetails(): string {
                 <li style="margin-bottom: 8px;"><strong>Record System ID:</strong> ${(String(item.id))}</li>
                 <li style="margin-bottom: 8px;"><strong>Target Asset ID:</strong> ${(String(item.software_id))}</li>
                 <li style="margin-bottom: 8px;"><strong>Requestor User ID:</strong> ${(String(item.user_id))}</li>
-                <li style="margin-bottom: 8px;"><strong>Timestamp Captured:</strong> ${(item.request_date)}</li>
+                <li style="margin-bottom: 8px;"><strong>Timestamp Captured:</strong> ${escapeHtml(item.request_date)}</li>
             </ul>
         </div>
     `;

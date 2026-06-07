@@ -1,18 +1,14 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request } from "express";
 import { AppError } from "../errors/AppError.js";
-import { error } from "node:console";
-import { version } from "node:os";
-import type { ListItemsQuery, userUpdateDto, userCreateDto } from "../types/user.js"
+import type { ListItemsQuery, userUpdateDto, userCreateDto } from "../types/user.js";
 
 export async function parseId(rawId: string | string[] | undefined): Promise<number | null> {
-    if(!rawId){return null;}
-  if (Array.isArray(rawId)) {
-    return Number(rawId[0]);
-  }
-  return Number(rawId);
+  const value = Array.isArray(rawId) ? rawId[0] : rawId;
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-export function parseNumberOrDefault(rawValue: unknown, defaultValue: number): number {
+function parseNumberOrDefault(rawValue: unknown, defaultValue: number): number {
   const parsed = Number(rawValue);
   return Number.isFinite(parsed) ? parsed : defaultValue;
 }
@@ -20,48 +16,34 @@ export function parseNumberOrDefault(rawValue: unknown, defaultValue: number): n
 export function parseListQuery(req: Request): ListItemsQuery {
   const sortByRaw = req.query.sortBy;
   const sortDirRaw = req.query.sortDir;
-
-  const sortBy =
-    sortByRaw === "name" || sortByRaw === "login" || sortByRaw === "password" 
-      ? sortByRaw
-      : "name";
-
-  const sortDir = sortDirRaw === "asc" ? "asc" : "desc";
-
+  const allowedSort = ['name','login','id'];
+  if (sortByRaw !== undefined && (typeof sortByRaw !== "string" || !allowedSort.includes(sortByRaw))) {
+    throw new AppError(400, "BAD_REQUEST", "Invalid sortBy");
+  }
+  if (sortDirRaw !== undefined && sortDirRaw !== "asc" && sortDirRaw !== "desc") {
+    throw new AppError(400, "BAD_REQUEST", "Invalid sortDir");
+  }
   return {
     limit: parseNumberOrDefault(req.query.limit, 20),
     offset: parseNumberOrDefault(req.query.offset, 0),
     q: typeof req.query.q === "string" ? req.query.q : null,
-    sortBy,
-    sortDir,
+    sortBy: (sortByRaw ?? "name") as NonNullable<ListItemsQuery["sortBy"]>,
+    sortDir: sortDirRaw === "asc" ? "asc" : "desc",
   };
 }
 
-export async function create(
-    req: Request
-): Promise <userCreateDto | null> {
-    if (!req.body.name || !req.body.login || !req.body.password )
-        {return null;} 
-    return {  
-        name: req.body.name,
-        login: req.body.login,
-        password: req.body.password
-    };
+export async function create(req: Request): Promise<userCreateDto | null> {
+  const name = String(req.body.name ?? "").trim();
+  const login = String(req.body.login ?? name).trim();
+  const password = String(req.body.password ?? "demo").trim();
+  if (!name || !login || !password) return null;
+  return { name, login, password };
 }
 
-export async function update (id: number | null, req: Request): Promise<userUpdateDto | null> {
-    if(!id){
-        return null;
-    }
-
-    if (id<0 || !req.body.name || !req.body.login || !req.body.password ) {
-        return null;
-    }
-
-    return {
-        id: id,
-        name: req.body.name,
-        login: req.body.login,
-        password: req.body.password,
-    };
+export async function update(id: number | null, req: Request): Promise<userUpdateDto | null> {
+  const name = String(req.body.name ?? "").trim();
+  const login = String(req.body.login ?? name).trim();
+  const password = String(req.body.password ?? "demo").trim();
+  if (!id || !name || !login || !password) return null;
+  return { id, name, login, password };
 }

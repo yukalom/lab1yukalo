@@ -66,6 +66,7 @@ function makeDefaultQuery(defaultSortBy: string): ListState<any>["query"] {
 }
 
 export const state = {
+    auth: { currentUser: "demo", currentRole: "user" },
     activeModal: null as string | null,
 
     products: {

@@ -58,6 +58,11 @@ async function apiRequest<T>(
         headers.set("Content-Type", "application/json");
     }
 
+    const currentUserId = localStorage.getItem("currentDemoUserId");
+    if (currentUserId) {
+        headers.set("X-Demo-UserId", currentUserId);
+    }
+
     try {
         const response = await fetch(buildUrl(path), {
             ...init,

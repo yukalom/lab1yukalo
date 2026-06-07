@@ -1,122 +1,55 @@
 import { all, get, run } from "../db/db.js";
-import type {
-  userDto,
-  userRow,
-  userUpdateDto,
-  ListItemsQuery,
-  userCreateDto,
-  listUser
-} from "../types/user.js";
+import type { userDto, userRow, userUpdateDto, ListItemsQuery, userCreateDto, listUser } from "../types/user.js";
 
-  let data : userRow[] = [];
+const sortColumnMap = { id: "id", name: "name", login: "login" } as const;
 
-  const sortColumnMap = {
-      name: "name",
-      login: "login",
-      password: "password"
-    } as const;
-  
-  
-  function mapRowToDto(row: userRow): userDto{
-      return {
-        id: Number (row.id),
-        name: String (row.name),
-        login: String (row.login),
-        password: String (row.password)
-          };
-  }
+type CountRow = { count: number };
 
+function mapRowToDto(row: userRow): userDto {
+  return { id: Number(row.id), name: String(row.name), login: String(row.login), password: String(row.password) };
+}
 
-  export async function getById(
-    id: number 
-  ): Promise < userDto | null > {
-    const sql = `SELECT * FROM user
-    WHERE id=${id}`;
+export async function getById(id: number): Promise<userDto | null> {
+  const row = await get<userRow>("SELECT * FROM user WHERE id = ?", [id]);
+  return row ? mapRowToDto(row) : null;
+}
 
-    const row = await get<userRow>(sql);
-    if (!row) {
-        return null;
-    }
- return mapRowToDto (row);
-  }
+export async function update(dto: userUpdateDto): Promise<userDto | null> {
+  const result = await run(
+    "UPDATE user SET name = ?, login = ?, password = ? WHERE id = ?",
+    [dto.name, dto.login, dto.password, dto.id],
+  );
+  return result.changes === 0 ? null : getById(dto.id);
+}
 
+export async function create(dto: userCreateDto): Promise<userDto> {
+  const result = await run(
+    "INSERT INTO user (name, login, password) VALUES (?, ?, ?)",
+    [dto.name, dto.login, dto.password],
+  );
+  const created = await getById(result.lastID);
+  if (!created) throw new Error("Created user could not be reloaded");
+  return created;
+}
 
-  export async function update(
-      dto: userUpdateDto
-  ):Promise <userDto | null> {
-    const sql = `UPDATE license
-    SET name = '${dto.name}',
-    login = '${dto.login}',
-    password = '${dto.password}'
-    WHERE id = '${dto.id}'
-    `
-    const update = await run (sql);
-
-    if (update.changes === 0){
-        return null;
-    }
-  
-    return getById(dto.id);
-  }
-
-  
-  export async function create(dto: userCreateDto): Promise<userDto> {
-     
-    const sql = `
-    INSERT INTO user (name, login, password)
-    VALUES ('${dto.name}', '${dto.login}', '${dto.password}')`;
-
-    const result = await run (sql);
-
-    const created = await getById(result.lastID);
-
-      if (!created){
-          throw new Error("Created item could not be reloaded");
-      }
-      return created;
-  }
-
-
-  export async function remove(id: number): Promise<boolean> {
-    const sql = `
-    DELETE FROM user
-    WHERE is = ${id}`;
-
-    const result = await run (sql);
-    return result.changes > 0;
-  }
+export async function remove(id: number): Promise<boolean> {
+  const result = await run("DELETE FROM user WHERE id = ?", [id]);
+  return result.changes > 0;
+}
 
 export async function getAll(query: ListItemsQuery): Promise<listUser> {
-    let sql = `SELECT * FROM user`
-
-    const conditions: string[] = [];
-
   const limit = Math.min(Math.max(Number(query.limit ?? 20), 1), 100);
   const offset = Math.max(Number(query.offset ?? 0), 0);
-
-  if (query.q && query.q.trim() !== "") {
-    conditions.push(`title LIKE '%${query.q.trim()}%'`);
-  }
-
   const sortBy = query.sortBy ?? "name";
-  const sortColumn = sortColumnMap[sortBy] ?? "name";
-  const sortDirection = query.sortDir === "asc" ? "ASC" : "DESC";
-
-    if (conditions.length > 0) {
-    sql += ` WHERE ${conditions.join(" AND ")}`;
+  const sortColumn = sortColumnMap[sortBy as keyof typeof sortColumnMap] ?? "name";
+  const sortDirection = query.sortDir === "desc" ? "DESC" : "ASC";
+  const params: unknown[] = [];
+  let whereSql = "";
+  if (query.q && query.q.trim() !== "") {
+    whereSql = " WHERE name LIKE ? OR login LIKE ?";
+    params.push(`%${query.q.trim()}%`, `%${query.q.trim()}%`);
   }
-
-  sql += ` ORDER BY ${sortColumn} ${sortDirection}`;
-  sql += ` LIMIT ${limit} OFFSET ${offset}`;
-
-  const rows = await all<userRow>(sql);
-
-  return {
-    items: rows.map(mapRowToDto),
-    page: {
-      limit,
-      offset,
-      count: rows.length,
-    },
-  };
+  const rows = await all<userRow>(`SELECT * FROM user${whereSql} ORDER BY ${sortColumn} ${sortDirection} LIMIT ? OFFSET ?`, [...params, limit, offset]);
+  const countRow = await get<CountRow>(`SELECT COUNT(*) AS count FROM user${whereSql}`, params);
+  return { items: rows.map(mapRowToDto), page: { limit, offset, count: Number(countRow?.count ?? 0) } };
 }

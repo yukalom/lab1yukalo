@@ -16,7 +16,7 @@ export function renderLicenseDetails(): string {
         return `<div class="status-msg error-msg">The chosen key signature dataset was missing on the server registry nodes.</div>`;
     }
     if (details.status === "error") {
-        return `<div class="status-msg error-msg">Error: ${(details.message)}</div>`;
+        return `<div class="status-msg error-msg">Error: ${escapeHtml(details.message)}</div>`;
     }
 
     const item = details.item;
@@ -32,7 +32,7 @@ export function renderLicenseDetails(): string {
                 <li style="margin-bottom: 8px;"><strong>Relational Target Software ID:</strong> ${(String(item.software_id))}</li>
                 <li style="margin-bottom: 8px; word-break: break-all;">
                     <strong>Cryptographic Token Value:</strong> <br>
-                    <code style="background: #f4f4f4; padding: 2px 4px; border-radius: 4px; display: inline-block; margin-top: 4px;">${(item.license_key)}</code>
+                    <code style="background: #f4f4f4; padding: 2px 4px; border-radius: 4px; display: inline-block; margin-top: 4px;">${escapeHtml(item.license_key)}</code>
                 </li>
             </ul>
         </div>

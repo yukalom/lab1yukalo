@@ -15,7 +15,7 @@ export function renderRequestCreateForm(): string {
             <div class="modal-form-content">
                 <h3>Log New Access Request</h3>
                 
-                ${form.formError ? `<div class="alert alert-danger">${(form.formError)}</div>` : ""}
+                ${form.formError ? `<div class="alert alert-danger">${escapeHtml(form.formError)}</div>` : ""}
                 
                 <form id="form-create-request" novalidate>
                     <div class="form-group">
@@ -32,7 +32,7 @@ export function renderRequestCreateForm(): string {
                     
                     <div class="form-group">
                         <label for="create-req-date">Request Verification Date</label>
-                        <input type="date" id="create-req-date" name="request_date" class="form-control ${hasError("request_date")}" value="${(fields.request_date || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="date" id="create-req-date" name="request_date" class="form-control ${hasError("request_date")}" value="${escapeHtml(fields.request_date || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("request_date")}
                     </div>
                     

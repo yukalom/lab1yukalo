@@ -1,16 +1,13 @@
-﻿import { defineConfig } from "vite";
-import { resolve } from "path";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-    server: {
-        port: 5000,
-        open: "app.html"
+  server: {
+    port: 5000,
+    open: "/app.html",
+  },
+  build: {
+    rollupOptions: {
+      input: "app.html",
     },
-    build: {
-        rollupOptions: {
-            input: {
-                main: resolve(__dirname, "app.html")
-            }
-        }
-    }
+  },
 });

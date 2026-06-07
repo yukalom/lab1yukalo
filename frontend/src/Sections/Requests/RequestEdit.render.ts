@@ -15,7 +15,7 @@ export function renderRequestEditForm(): string {
             <div class="modal-form-content">
                 <h3>Modify Request Parameters (ID: ${(String(state.selectedRequestId))})</h3>
                 
-                ${form.formError ? `<div class="alert alert-danger">${(form.formError)}</div>` : ""}
+                ${form.formError ? `<div class="alert alert-danger">${escapeHtml(form.formError)}</div>` : ""}
                 
                 <form id="form-edit-request" novalidate>
                     <div class="form-group">
@@ -32,7 +32,7 @@ export function renderRequestEditForm(): string {
                     
                     <div class="form-group">
                         <label for="edit-req-date">Request Verification Date</label>
-                        <input type="date" id="edit-req-date" name="request_date" class="form-control ${hasError("request_date")}" value="${(fields.request_date || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="date" id="edit-req-date" name="request_date" class="form-control ${hasError("request_date")}" value="${escapeHtml(fields.request_date || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("request_date")}
                     </div>
                     

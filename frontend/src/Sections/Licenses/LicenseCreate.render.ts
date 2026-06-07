@@ -15,7 +15,7 @@ export function renderLicenseCreateForm(): string {
             <div class="modal-form-content">
                 <h3>Provision New License Token</h3>
                 
-                ${form.formError ? `<div class="alert alert-danger">${(form.formError)}</div>` : ""}
+                ${form.formError ? `<div class="alert alert-danger">${escapeHtml(form.formError)}</div>` : ""}
                 
                 <form id="form-create-license" novalidate>
                     <div class="form-group">
@@ -26,7 +26,7 @@ export function renderLicenseCreateForm(): string {
                     
                     <div class="form-group">
                         <label for="create-lic-key">Cryptographic License Token Key String</label>
-                        <input type="text" id="create-lic-key" name="license_key" class="form-control ${hasError("license_key")}" placeholder="XXXX-XXXX-XXXX-XXXX" value="${(fields.license_key || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="text" id="create-lic-key" name="license_key" class="form-control ${hasError("license_key")}" placeholder="XXXX-XXXX-XXXX-XXXX" value="${escapeHtml(fields.license_key || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("license_key")}
                     </div>
                     

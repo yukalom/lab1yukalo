@@ -28,7 +28,7 @@ export function renderLicensesList(): string {
                     <tr class="clickable-row ${isSelected ? "selected-row" : ""}" data-license-id="${item.id}" style="cursor: pointer;">
                         <td>${String(item.id)}</td>
                         <td>${String(item.software_id)}</td>
-                        <td style="font-family: monospace;">${(item.license_key)}</td>
+                        <td style="font-family: monospace;">${escapeHtml(item.license_key)}</td>
                         <td style="text-align: center;">
                             <div class="action-buttons-cell" style="display: flex; gap: 5px; justify-content: center;">
                                 <button class="btn btn-sm btn-secondary btn-edit-license" data-license-id="${item.id}">Edit</button>

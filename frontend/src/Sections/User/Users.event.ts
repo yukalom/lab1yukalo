@@ -1,184 +1,101 @@
-﻿import * as UserApi from "../../Api/UserApi";
-import {
-    state as originalState,
-    fillUserEditForm,
-    resetUserCreateForm,
-    resetUserEditForm
-} from "../../state/state";
-
-const state = originalState as typeof originalState & { activeModal?: string | null };
+import * as UserApi from "../../Api/UserApi";
+import { state, fillUserEditForm } from "../../state/state";
 
 type RenderTriggerCallback = () => void;
-let searchDebounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function makeLogin(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, "_") || `user_${Date.now()}`;
+}
+
+function setCurrentUser(id: number | null): void {
+  state.selectedUserId = id;
+  if (id) localStorage.setItem("currentDemoUserId", String(id));
+  else localStorage.removeItem("currentDemoUserId");
+  const found = state.users.items.find((user) => user.id === id);
+  if (found) fillUserEditForm(found);
+}
+
+async function refreshUsersListData(triggerAppRender: RenderTriggerCallback) {
+  state.users.status = "loading";
+  triggerAppRender();
+  const result = await UserApi.getUsers({
+    limit: state.users.query.limit,
+    offset: state.users.query.offset,
+    q: state.users.query.q || null,
+    sortBy: state.users.query.sortBy,
+    sortDir: state.users.query.sortDir,
+  });
+  if (!result.ok) {
+    state.users = { ...state.users, status: "error", message: result.error.message, items: [] };
+  } else {
+    state.users = {
+      status: result.data.items.length === 0 ? "empty" : "success",
+      items: result.data.items,
+      query: state.users.query,
+      totalCount: result.data.page.count,
+    };
+    const savedId = Number(localStorage.getItem("currentDemoUserId"));
+    const nextUser = result.data.items.find((u) => u.id === state.selectedUserId)
+      ?? result.data.items.find((u) => u.id === savedId)
+      ?? result.data.items[0]
+      ?? null;
+    setCurrentUser(nextUser?.id ?? null);
+  }
+  triggerAppRender();
+}
 
 export function attachUserEventListeners(rootContainer: HTMLElement, triggerAppRender: RenderTriggerCallback): void {
-    async function refreshUsersListData() {
-        state.users.status = "loading";
-        triggerAppRender();
-
-        const result = await UserApi.getUsers({
-            limit: state.users.query.limit,
-            offset: state.users.query.offset,
-            q: state.users.query.q || null,
-            sortBy: state.users.query.sortBy,
-            sortDir: state.users.query.sortDir
-        });
-
-        if (!result.ok) {
-            state.users = {
-                ...state.users,
-                status: "error",
-                message: result.error.message,
-                items: []
-            };
-        } else {
-            state.users = {
-                status: result.data.items.length === 0 ? "empty" : "success",
-            items: result.data.items,
-                query: state.users.query,
-                totalCount: result.data.page.count
-        };
-        }
-        triggerAppRender();
+  rootContainer.addEventListener("input", (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target.id === "inline-user-name") {
+      state.userEditForm.fields.name = target.value;
     }
+  });
 
-    rootContainer.addEventListener("input", (e) => {
-        const target = e.target as HTMLElement;
-        if (target.id === "input-search-users") {
-            const currentSearchValue = (target as HTMLInputElement).value;
+  rootContainer.addEventListener("change", async (e) => {
+    const target = e.target as HTMLSelectElement;
+    if (target.id === "current-user-select") {
+      const userId = Number(target.value);
+      const result = await UserApi.getUserById(userId);
+      if (result.ok) setCurrentUser(result.data.id);
+      triggerAppRender();
+    }
+  });
 
-            if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
+  rootContainer.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement;
+    if (target.id === "btn-inline-create-user") {
+      const name = (document.getElementById("inline-user-name") as HTMLInputElement | null)?.value.trim() || "Новий користувач";
+      const dto = { name, login: makeLogin(name), password: "demo" };
+      const result = await UserApi.createUser(dto);
+      if (!result.ok) { alert(result.error.message); return; }
+      await refreshUsersListData(triggerAppRender);
+      setCurrentUser(result.data.id);
+      triggerAppRender();
+      return;
+    }
+    if (target.id === "btn-inline-delete-user") {
+      if (!state.selectedUserId) return;
+      if (!confirm("Видалити поточний профіль?")) return;
+      const result = await UserApi.deleteUser(state.selectedUserId);
+      if (!result.ok) { alert(result.error.message); return; }
+      setCurrentUser(null);
+      await refreshUsersListData(triggerAppRender);
+      return;
+    }
+  });
 
-            searchDebounceTimeout = setTimeout(() => {
-                state.users.query.q = currentSearchValue;
-                state.users.query.offset = 0;
-                refreshUsersListData();
-            }, 350);
-        }
-
-        if (target.tagName === "INPUT" && (target as HTMLInputElement).form) {
-            const formElement = (target as HTMLInputElement).form;
-
-            if (formElement?.id === "form-create-user") {
-                const nameAttr = target.getAttribute("name");
-                if (nameAttr) {
-                    state.userCreateForm.fields[nameAttr] = (target as HTMLInputElement).value;
-                }
-            }
-            if (formElement?.id === "form-edit-user") {
-                const nameAttr = target.getAttribute("name");
-                if (nameAttr) {
-                    state.userEditForm.fields[nameAttr] = (target as HTMLInputElement).value;
-                }
-            }
-        }
-    });
-
-    rootContainer.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement;
-        const sortHeader = target.closest("#table-users-list th[data-sort-field]");
-
-        if (sortHeader) {
-            const field = sortHeader.getAttribute("data-sort-field")!;
-            const currentDir = state.users.query.sortDir;
-
-            state.users.query.sortBy = field;
-            state.users.query.sortDir = currentDir === "asc" ? "desc" : "asc";
-            state.users.query.offset = 0;
-
-            refreshUsersListData();
-        }
-    });
-
-    rootContainer.addEventListener("click", async (e) => {
-        const target = e.target as HTMLElement;
-
-        if (target.id === "btn-trigger-create-user") {
-            resetUserCreateForm();
-            state.activeModal = "create-user";
-            triggerAppRender();
-            return;
-        }
-
-        if (target.classList.contains("btn-edit-user")) {
-            e.stopPropagation();
-            const userId = Number(target.dataset.userId);
-            state.selectedUserId = userId;
-
-            const found = state.users.items.find(u => u.id === userId);
-            if (found) {
-                fillUserEditForm(found);
-                state.activeModal = "edit-user";
-                triggerAppRender();
-            }
-            return;
-        }
-
-        if (target.classList.contains("btn-delete-user")) {
-            e.stopPropagation();
-            const userId = Number(target.dataset.userId);
-            if (!confirm("Are you sure you want to delete this user?")) return;
-
-            const result = await UserApi.deleteUser(userId);
-            if (result.ok) {
-                if (state.selectedUserId === userId) {
-                    state.selectedUserId = null;
-                    state.userDetails = { status: "not_selected" };
-                }
-                await refreshUsersListData();
-            } else {
-                alert(`Failed to delete user: ${result.error.message}`);
-            }
-            return;
-        }
-
-        const clickableRow = target.closest("#table-users-list .clickable-row");
-        if (clickableRow && !target.closest("button") && !target.classList.contains("btn")) {
-            const userId = Number((clickableRow as HTMLElement).dataset.userId);
-
-            if (state.selectedUserId === userId) {
-                state.selectedUserId = null;
-                state.userDetails = { status: "not_selected" };
-            } else {
-                state.selectedUserId = userId;
-                state.userDetails = { status: "loading" };
-                triggerAppRender();
-
-                const result = await UserApi.getUserById(userId);
-                if (state.selectedUserId === userId) { // Validate race conditions
-                    if (result.ok) {
-                        state.userDetails = { status: "success", item: result.data };
-                    } else if (result.error.status === 404) {
-                        state.userDetails = { status: "not_found" };
-                    } else {
-                        state.userDetails = { status: "error", message: result.error.message };
-                    }
-                }
-            }
-            triggerAppRender();
-            return;
-        }
-
-        if (target.id === "btn-close-user-details") {
-            state.selectedUserId = null;
-            state.userDetails = { status: "not_selected" };
-            triggerAppRender();
-            return;
-        }
-
-        if (target.id === "btn-cancel-create-user") {
-            state.activeModal = null;
-            resetUserCreateForm();
-            triggerAppRender();
-            return;
-        }
-
-        if (target.id === "btn-cancel-edit-user") {
-            state.activeModal = null;
-            resetUserEditForm();
-            triggerAppRender();
-            return;
-        }
-        
-    });
+  rootContainer.addEventListener("submit", async (e) => {
+    const form = e.target as HTMLFormElement;
+    if (form.id !== "inline-user-form") return;
+    e.preventDefault();
+    if (!state.selectedUserId) return;
+    const name = (document.getElementById("inline-user-name") as HTMLInputElement | null)?.value.trim();
+    if (!name) { alert("Введіть ім’я користувача"); return; }
+    const current = state.users.items.find((user) => user.id === state.selectedUserId);
+    const dto = { id: state.selectedUserId, name, login: current?.login || makeLogin(name), password: current?.password || "demo" };
+    const result = await UserApi.updateUser(state.selectedUserId, dto);
+    if (!result.ok) { alert(result.error.message); return; }
+    await refreshUsersListData(triggerAppRender);
+  });
 }

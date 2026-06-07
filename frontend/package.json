@@ -5,9 +5,10 @@
   "main": "src/main.ts",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p src/tsconfig.json && vite build"
+    "build": "tsc -p tsconfig.json && vite build"
   },
   "devDependencies": {
-    "vite": "^8.0.8"
+    "vite": "^6.0.5",
+    "typescript": "^5.7.3"
   }
 }

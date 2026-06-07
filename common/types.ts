@@ -1,0 +1,17 @@
+export type softwareDto = { id: number; name: string; version: number; licensetype: "Free" | "Commercial" | "Academic"; date: string };
+export type softwareCreateDto = Omit<softwareDto, "id">;
+export type softwareUpdateDto = softwareDto;
+export type licenseDto = { id: number; software_id: number; license_key: string };
+export type licenseCreateDto = Omit<licenseDto, "id">;
+export type licenseUpdateDto = licenseDto;
+export type userDto = { id: number; name: string; login: string; password: string };
+export type userCreateDto = Omit<userDto, "id">;
+export type userUpdateDto = userDto;
+export type requestDto = { id: number; software_id: number; user_id: number; request_date: string };
+export type requestCreateDto = Omit<requestDto, "id">;
+export type requestUpdateDto = requestDto;
+export type ListItemsQuery = { limit?: number; offset?: number; q?: string | null; sortBy?: string; sortDir?: "asc" | "desc" };
+export type listSoftware = { items: softwareDto[]; page: { limit: number; offset: number; count: number } };
+export type listLicense = { items: licenseDto[]; page: { limit: number; offset: number; count: number } };
+export type listUser = { items: userDto[]; page: { limit: number; offset: number; count: number } };
+export type listRequest = { items: requestDto[]; page: { limit: number; offset: number; count: number } };
