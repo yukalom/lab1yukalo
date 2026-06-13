@@ -1,5 +1,3 @@
-﻿// src/Sections/Licenses/LicenseList.render.ts
-
 import { state } from "../../state/state";
 import { escapeHtml } from "../../escape";
 
@@ -17,42 +15,39 @@ export function renderLicensesList(): string {
     if (licensesState.status === "loading") {
         tableContentHtml = `<tr><td colspan="4" class="status-msg">Synchronizing licenses authorization database...</td></tr>`;
     } else if (licensesState.status === "error") {
-        tableContentHtml = `<tr><td colspan="4" class="status-msg error-msg">Error: ${licensesState.message || ""}</td></tr>`;
+        tableContentHtml = `<tr><td colspan="4" class="status-msg error-msg">Error: ${escapeHtml(licensesState.message || "")}</td></tr>`;
     } else if (licensesState.status === "empty" || !licensesState.items.length) {
         tableContentHtml = `<tr><td colspan="4" class="status-msg">No license keys correspond to the specified evaluation parameters.</td></tr>`;
     } else {
-        tableContentHtml = licensesState.items
-            .map((item) => {
-                const isSelected = state.selectedLicenseId === item.id;
-                return `
-                    <tr class="clickable-row ${isSelected ? "selected-row" : ""}" data-license-id="${item.id}" style="cursor: pointer;">
-                        <td>${String(item.id)}</td>
-                        <td>${String(item.software_id)}</td>
-                        <td style="font-family: monospace;">${escapeHtml(item.license_key)}</td>
-                        <td style="text-align: center;">
-                            <div class="action-buttons-cell" style="display: flex; gap: 5px; justify-content: center;">
-                                <button class="btn btn-sm btn-secondary btn-edit-license" data-license-id="${item.id}">Edit</button>
-                                <button class="btn btn-sm btn-danger btn-delete-license" data-license-id="${item.id}">Delete</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            })
-            .join("");
+        tableContentHtml = licensesState.items.map((item) => {
+            const isSelected = state.selectedLicenseId === item.id;
+            return `
+                <tr class="clickable-row ${isSelected ? "selected-row" : ""}" data-license-id="${item.id}" style="cursor: pointer;">
+                    <td>${String(item.id)}</td>
+                    <td>${String(item.software_id)}</td>
+                    <td style="font-family: monospace;">${escapeHtml(item.license_key)}</td>
+                    <td style="text-align: center;">
+                        <div class="action-buttons-cell" style="display: flex; gap: 5px; justify-content: center;">
+                            <button class="btn btn-sm btn-secondary btn-edit-license" data-license-id="${item.id}">Edit</button>
+                            <button class="btn btn-sm btn-danger btn-delete-license" data-license-id="${item.id}">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
     }
 
     const currentItemsLength = licensesState.items.length;
     const totalCount = licensesState.totalCount || 0;
     const currentPage = Math.floor(query.offset / query.limit) + 1;
     const totalPages = Math.max(1, Math.ceil(totalCount / query.limit));
-
     const isPrevDisabled = query.offset === 0 || licensesState.status === "loading";
     const isNextDisabled = (query.offset + query.limit) >= totalCount || licensesState.status === "loading";
 
     return `
         <div class="section-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div class="search-box">
-                <input type="text" id="input-search-licenses" class="form-control" placeholder="Search licenses..." value="${(query.q || "")}">
+                <input type="text" id="input-search-licenses" class="form-control" placeholder="Search licenses..." value="${escapeHtml(query.q || "")}">
             </div>
             <button class="btn btn-primary" id="btn-trigger-create-license">Add New License</button>
         </div>
@@ -66,9 +61,16 @@ export function renderLicensesList(): string {
                     <th style="text-align: center; width: 150px;">Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                ${tableContentHtml}
-            </tbody>
+            <tbody>${tableContentHtml}</tbody>
         </table>
+
+        <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #ddd;">
+            <span class="pagination-info">Showing records ${currentItemsLength ? query.offset + 1 : 0} - ${Math.min(query.offset + currentItemsLength, totalCount)} of ${totalCount}</span>
+            <div class="pagination-actions" style="display: flex; gap: 10px;">
+                <button class="btn btn-sm" id="btn-license-prev-page" ${isPrevDisabled ? "disabled" : ""}>Previous</button>
+                <span style="align-self: center; font-weight: bold;">Page ${currentPage} / ${totalPages}</span>
+                <button class="btn btn-sm" id="btn-license-next-page" ${isNextDisabled ? "disabled" : ""}>Next</button>
+            </div>
+        </div>
     `;
 }

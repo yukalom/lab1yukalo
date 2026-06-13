@@ -72,10 +72,21 @@ function render(): void {
     } else if (currentActiveTab === "users") {
         viewContentHtml = `
             <div class="workspace-layout">
-                <div class="inventory-master-panel users-profile-panel">
+                <div class="inventory-master-panel">
+                    <div class="panel-header">
+                        <h2>Users</h2>
+                    </div>
+                    <div class="filter-toolbar">
+                    </div>
                     ${renderUsersList()}
                 </div>
+                <div class="inventory-details-panel">
+                    ${renderUserDetails()}
+                </div>
             </div>
+
+            ${state.activeModal === "create-user" ? renderUserCreateForm() : ""}
+            ${state.activeModal === "edit-user" ? renderUserEditForm() : ""}
         `;
     } else if (currentActiveTab === "licenses") {
         viewContentHtml = `
@@ -167,13 +178,6 @@ function render(): void {
                 query: state.users.query,
                 totalCount: result.data.page.count
             };
-            const savedId = Number(localStorage.getItem("currentDemoUserId"));
-            const current = result.data.items.find((u) => u.id === state.selectedUserId)
-                ?? result.data.items.find((u) => u.id === savedId)
-                ?? result.data.items[0]
-                ?? null;
-            state.selectedUserId = current?.id ?? null;
-            if (current) localStorage.setItem("currentDemoUserId", String(current.id));
         } else {
             state.users.status = "error";
             state.users.message = result.error.message;

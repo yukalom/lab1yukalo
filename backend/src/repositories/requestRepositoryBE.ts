@@ -10,6 +10,7 @@ import type {
  let data : requestRow[] = [];
 
 const sortColumnMap = {
+  id: "id",
   software_id: "software_id",
   user_id: "user_id",
   request_date: "request_date"
@@ -57,7 +58,7 @@ export async function getAll(query: ListItemsQuery): Promise<listRequest> {
   const offset = Math.max(Number(query.offset ?? 0), 0);
 
   if (query.q && query.q.trim() !== "") {
-    conditions.push(`title LIKE '%${query.q.trim()}%'`);
+    conditions.push(`request_date LIKE '%${query.q.trim()}%'`);
   }
 
   const sortBy = query.sortBy ?? "user_id";

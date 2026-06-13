@@ -1,5 +1,3 @@
-﻿// src/Sections/Requests/RequestList.render.ts
-
 import { state } from "../../state/state";
 import { escapeHtml } from "../../escape";
 
@@ -17,41 +15,41 @@ export function renderRequestsList(): string {
     if (requestsState.status === "loading") {
         tableContentHtml = `<tr><td colspan="5" class="status-msg">Loading operations registry logs...</td></tr>`;
     } else if (requestsState.status === "error") {
-        tableContentHtml = `<tr><td colspan="5" class="status-msg error-msg">Error: ${(requestsState.message || "")}</td></tr>`;
+        tableContentHtml = `<tr><td colspan="5" class="status-msg error-msg">Error: ${escapeHtml(requestsState.message || "")}</td></tr>`;
     } else if (requestsState.status === "empty" || !requestsState.items.length) {
         tableContentHtml = `<tr><td colspan="5" class="status-msg">No access log entries correspond to the criteria.</td></tr>`;
     } else {
-        tableContentHtml = requestsState.items
-            .map((item) => {
-                const isSelected = state.selectedRequestId === item.id;
-                return `
-                    <tr class="clickable-row ${isSelected ? "selected-row" : ""}" data-request-id="${item.id}" style="cursor: pointer;">
-                        <td>${(String(item.id))}</td>
-                        <td>${(String(item.software_id))}</td>
-                        <td>${(String(item.user_id))}</td>
-                        <td>${escapeHtml(item.request_date)}</td>
-                        <td style="text-align: center;">
-                            <div class="action-buttons-cell" style="display: flex; gap: 5px; justify-content: center;">
-                                <button class="btn btn-sm btn-secondary btn-edit-request" data-request-id="${item.id}">Edit</button>
-                                <button class="btn btn-sm btn-danger btn-delete-request" data-request-id="${item.id}">Delete</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            })
-            .join("");
+        tableContentHtml = requestsState.items.map((item) => {
+            const isSelected = state.selectedRequestId === item.id;
+            return `
+                <tr class="clickable-row ${isSelected ? "selected-row" : ""}" data-request-id="${item.id}" style="cursor: pointer;">
+                    <td>${String(item.id)}</td>
+                    <td>${String(item.software_id)}</td>
+                    <td>${String(item.user_id)}</td>
+                    <td>${escapeHtml(item.request_date)}</td>
+                    <td style="text-align: center;">
+                        <div class="action-buttons-cell" style="display: flex; gap: 5px; justify-content: center;">
+                            <button class="btn btn-sm btn-secondary btn-edit-request" data-request-id="${item.id}">Edit</button>
+                            <button class="btn btn-sm btn-danger btn-delete-request" data-request-id="${item.id}">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
     }
 
     const currentItemsLength = requestsState.items.length;
     const totalCount = requestsState.totalCount || 0;
     const currentPage = Math.floor(query.offset / query.limit) + 1;
     const totalPages = Math.max(1, Math.ceil(totalCount / query.limit));
-
     const isPrevDisabled = query.offset === 0 || requestsState.status === "loading";
     const isNextDisabled = (query.offset + query.limit) >= totalCount || requestsState.status === "loading";
 
     return `
         <div class="section-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div class="search-box">
+                <input type="text" id="input-search-requests" class="form-control" placeholder="Search requests by date..." value="${escapeHtml(query.q || "")}">
+            </div>
             <button class="btn btn-primary" id="btn-trigger-create-request">Add New Request</button>
         </div>
 
@@ -65,9 +63,16 @@ export function renderRequestsList(): string {
                     <th style="text-align: center; width: 150px;">Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                ${tableContentHtml}
-            </tbody>
+            <tbody>${tableContentHtml}</tbody>
         </table>
+
+        <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #ddd;">
+            <span class="pagination-info">Showing records ${currentItemsLength ? query.offset + 1 : 0} - ${Math.min(query.offset + currentItemsLength, totalCount)} of ${totalCount}</span>
+            <div class="pagination-actions" style="display: flex; gap: 10px;">
+                <button class="btn btn-sm" id="btn-request-prev-page" ${isPrevDisabled ? "disabled" : ""}>Previous</button>
+                <span style="align-self: center; font-weight: bold;">Page ${currentPage} / ${totalPages}</span>
+                <button class="btn btn-sm" id="btn-request-next-page" ${isNextDisabled ? "disabled" : ""}>Next</button>
+            </div>
+        </div>
     `;
 }

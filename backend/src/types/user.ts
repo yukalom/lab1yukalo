@@ -23,7 +23,7 @@ export type ListItemsQuery = {
   limit?: number;
   offset?: number;
   q?: string | null;
-  sortBy?: "name" | "login" | "password";
+  sortBy?: "id" | "name" | "login" | "password";
   sortDir?: "asc" | "desc";
 };
 

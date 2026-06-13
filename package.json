@@ -1,11 +1,5 @@
 {
-  "private": true,
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
-  "scripts": {
-    "dev:be": "npm --prefix backend run dev",
-    "dev:fe": "npm --prefix frontend run dev"
+  "devDependencies": {
+    "@types/node": "^25.6.0"
   }
 }

@@ -26,7 +26,7 @@ export type ListItemsQuery = {
   limit?: number;
   offset?: number;
   q?: string | null;
-  sortBy?: "name" | "version" | "licensetype" | "date";
+  sortBy?: "id" | "name" | "version" | "licensetype" | "date";
   sortDir?: "asc" | "desc";
 };
 

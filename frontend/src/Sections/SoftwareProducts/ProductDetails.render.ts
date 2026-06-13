@@ -16,7 +16,7 @@ export function renderProductDetails(): string {
         return `<div class="status-msg error-msg">The selected item profile was not found on the asset registry server.</div>`;
     }
     if (details.status === "error") {
-        return `<div class="status-msg error-msg">Error fetching specifications: ${escapeHtml(details.message)}</div>`;
+        return `<div class="status-msg error-msg">Error fetching specifications: ${(details.message)}</div>`;
     }
 
     const item = details.item;
@@ -29,10 +29,10 @@ export function renderProductDetails(): string {
             </div>
             <ul class="details-list">
                 <li><strong>System Entity ID:</strong> ${(String(item.id))}</li>
-                <li><strong>Product Unique Name:</strong> ${escapeHtml(item.name)}</li>
+                <li><strong>Product Unique Name:</strong> ${(item.name)}</li>
                 <li><strong>Engineering Build Version:</strong> v${(String(item.version))}</li>
-                <li><strong>Assigned Compliance Type:</strong> ${escapeHtml(item.licensetype)}</li>
-                <li><strong>Initial Database Provision Date:</strong> ${escapeHtml(item.date)}</li>
+                <li><strong>Assigned Compliance Type:</strong> ${(item.licensetype)}</li>
+                <li><strong>Initial Database Provision Date:</strong> ${(item.date)}</li>
             </ul>
         </div>
     `;

@@ -1,4 +1,4 @@
-﻿// src/state/state.ts
+// src/state/state.ts
 
 import type {
     softwareDto,
@@ -66,8 +66,11 @@ function makeDefaultQuery(defaultSortBy: string): ListState<any>["query"] {
 }
 
 export const state = {
-    auth: { currentUser: "demo", currentRole: "user" },
     activeModal: null as string | null,
+    auth: {
+        currentUser: "demo_admin",
+        currentRole: "admin" as "admin" | "user",
+    },
 
     products: {
         status: "loading",

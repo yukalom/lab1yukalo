@@ -1,4 +1,4 @@
-﻿import { apiRequest } from "./ApiClient";
+import { apiRequest } from "./ApiClient";
 import type { ApiResult } from "./ApiClient";
 import type {
     listLicense,
@@ -12,6 +12,8 @@ export function getLicenses(query?: ListItemsQuery): Promise<ApiResult<listLicen
     const params = new URLSearchParams();
 
     if (query) {
+        if (query.limit !== undefined) params.append("limit", query.limit.toString());
+        if (query.offset !== undefined) params.append("offset", query.offset.toString());
         if (query.q) params.append("q", query.q);
         if (query.sortBy) params.append("sortBy", query.sortBy);
         if (query.sortDir) params.append("sortDir", query.sortDir);

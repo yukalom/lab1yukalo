@@ -20,7 +20,7 @@ export type ListItemsQuery = {
   limit?: number;
   offset?: number;
   q?: string | null;
-  sortBy?: "software_id" | "license_key";
+  sortBy?: "id" | "software_id" | "license_key";
   sortDir?: "asc" | "desc";
 };
 

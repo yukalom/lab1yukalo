@@ -23,7 +23,7 @@ export type ListItemsQuery = {
   limit?: number;
   offset?: number;
   q?: string | null;
-  sortBy?: "software_id" | "user_id" | "request_date";
+  sortBy?: "id" | "software_id" | "user_id" | "request_date";
   sortDir?: "asc" | "desc";
 };
 

@@ -15,18 +15,18 @@ export function renderProductCreateForm(): string {
             <div class="modal-form-content">
                 <h3>Register New Software Product</h3>
                 
-                ${form.formError ? `<div class="alert alert-danger">${escapeHtml(form.formError)}</div>` : ""}
+                ${form.formError ? `<div class="alert alert-danger">${(form.formError)}</div>` : ""}
                 
                 <form id="form-create-product" novalidate>
                     <div class="form-group">
                         <label for="create-product-name">Product Label (Unique)</label>
-                        <input type="text" id="create-product-name" name="name" class="${hasError("name")}" value="${escapeHtml(fields.name || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="text" id="create-product-name" name="name" class="${hasError("name")}" value="${(fields.name || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("name")}
                     </div>
                     
                     <div class="form-group">
                         <label for="create-product-version">Engineering Build Version</label>
-                        <input type="number" id="create-product-version" name="version" class="${hasError("version")}" value="${escapeHtml(fields.version || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="number" id="create-product-version" name="version" class="${hasError("version")}" value="${(fields.version || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("version")}
                     </div>
                     

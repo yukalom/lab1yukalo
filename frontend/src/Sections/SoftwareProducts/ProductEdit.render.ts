@@ -15,18 +15,18 @@ export function renderProductEditForm(): string {
             <div class="modal-form-content">
                 <h3>Modify Software Specifications (ID: ${(String(state.selectedProductId))})</h3>
                 
-                ${form.formError ? `<div class="alert alert-danger">${escapeHtml(form.formError)}</div>` : ""}
+                ${form.formError ? `<div class="alert alert-danger">${(form.formError)}</div>` : ""}
                 
                 <form id="form-edit-product" novalidate>
                     <div class="form-group">
                         <label for="edit-product-name">Product Designation Label</label>
-                        <input type="text" id="edit-product-name" name="name" class="${hasError("name")}" value="${escapeHtml(fields.name || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="text" id="edit-product-name" name="name" class="${hasError("name")}" value="${(fields.name || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("name")}
                     </div>
                     
                     <div class="form-group">
                         <label for="edit-product-version">Build Revision Identity Index</label>
-                        <input type="number" id="edit-product-version" name="version" class="${hasError("version")}" value="${escapeHtml(fields.version || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="number" id="edit-product-version" name="version" class="${hasError("version")}" value="${(fields.version || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("version")}
                     </div>
                     
@@ -42,7 +42,7 @@ export function renderProductEditForm(): string {
                     
                     <div class="form-group">
                         <label for="edit-product-date">Registered Engineering Date</label>
-                        <input type="date" id="edit-product-date" name="date" class="${hasError("date")}" value="${escapeHtml(fields.date || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="date" id="edit-product-date" name="date" class="${hasError("date")}" value="${(fields.date || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("date")}
                     </div>
                     

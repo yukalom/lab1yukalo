@@ -10,6 +10,7 @@ import type {
   let data : licenseRow[] = [];
 
   const sortColumnMap = {
+    id: "id",
     software_id: "software_id",
     license_key: "license_key"
     } as const;

@@ -15,7 +15,7 @@ export function renderLicenseEditForm(): string {
             <div class="modal-form-content">
                 <h3>Modify License Configuration (ID: ${String(state.selectedLicenseId)})</h3>
                 
-                ${form.formError ? `<div class="alert alert-danger">${escapeHtml(form.formError)}</div>` : ""}
+                ${form.formError ? `<div class="alert alert-danger">${(form.formError)}</div>` : ""}
                 
                 <form id="form-edit-license" novalidate>
                     <div class="form-group">
@@ -26,7 +26,7 @@ export function renderLicenseEditForm(): string {
                     
                     <div class="form-group">
                         <label for="edit-lic-key">Cryptographic License Token Key String</label>
-                        <input type="text" id="edit-lic-key" name="license_key" class="form-control ${hasError("license_key")}" value="${escapeHtml(fields.license_key || "")}" ${form.isSubmitting ? "disabled" : ""}>
+                        <input type="text" id="edit-lic-key" name="license_key" class="form-control ${hasError("license_key")}" value="${(fields.license_key || "")}" ${form.isSubmitting ? "disabled" : ""}>
                         ${renderError("license_key")}
                     </div>
                     

@@ -10,6 +10,7 @@ import type {
   let data : userRow[] = [];
 
   const sortColumnMap = {
+      id: "id",
       name: "name",
       login: "login",
       password: "password"

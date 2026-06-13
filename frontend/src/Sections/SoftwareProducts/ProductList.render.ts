@@ -34,10 +34,10 @@ export function renderProductsList(): string {
                 return `
                     <tr class="clickable-row ${isSelected ? "selected-row" : ""}" data-product-id="${item.id}">
                         <td>${(item.id)}</td>
-                        <td>${escapeHtml(item.name)}</td>
+                        <td>${(item.name)}</td>
                         <td>v${(item.version)}</td>
-                        <td><span class="badge badge-${item.licensetype.toLowerCase()}">${escapeHtml(item.licensetype)}</span></td>
-                        <td>${escapeHtml(item.date)}</td>
+                        <td><span class="badge badge-${item.licensetype.toLowerCase()}">${item.licensetype}</span></td>
+                        <td>${(item.date)}</td>
                         <td>
                             <button class="btn btn-sm btn-edit-product" data-product-id="${item.id}">Edit</button>
                             <button class="btn btn-sm btn-danger btn-delete-product" data-product-id="${item.id}">Delete</button>
